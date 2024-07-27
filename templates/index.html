@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Generador de Números de Rifa</title>
     <style>
         body {
@@ -31,14 +33,6 @@
             margin-bottom: 8px;
             font-weight: bold;
         }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
         button {
             background-color: #007bff;
             color: #fff;
@@ -55,49 +49,85 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container mt-5">
         <h1>Generador de Números de Rifa</h1>
+        <!-- Mostrar mensajes flash -->
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <script>
+                        Swal.fire({
+                            title: 'Mensaje',
+                            text: '{{ message }}',
+                            icon: '{{ category }}',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    </script>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         <form method="POST">
-            <label for="email">Correo Electrónico:</label>
-            <input type="email" id="email" name="email" required><br>
+            {{ form.hidden_tag() }}
 
-            <label for="num_numbers">Número de Números:</label>
-            <select id="num_numbers" name="num_numbers" onchange="toggleCustomNumber()" required>
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="custom">Otro</option>
-            </select><br>
+            <div class="form-group">
+                {{ form.first_name.label(class="form-label") }}
+                {{ form.first_name(class="form-control") }}
+            </div>
 
-            <input type="number" id="custom_number" name="custom_number" placeholder="Número personalizado" style="display: none;"><br>
+            <div class="form-group">
+                {{ form.last_name.label(class="form-label") }}
+                {{ form.last_name(class="form-control") }}
+            </div>
 
-            <label for="bank_account">Cuenta Bancaria:</label>
-            <select id="bank_account" name="bank_account" required>
-                <option value="1234567890">Banco A - 1234567890</option>
-                <option value="0987654321">Banco B - 0987654321</option>
-                <option value="1122334455">Banco C - 1122334455</option>
-            </select><br>
+            <div class="form-group">
+                {{ form.address.label(class="form-label") }}
+                {{ form.address(class="form-control") }}
+            </div>
 
-            <label for="reference">Referencia de Consignación:</label>
-            <input type="text" id="reference" name="reference" required><br>
+            <div class="form-group">
+                {{ form.reference_number.label(class="form-label") }}
+                {{ form.reference_number(class="form-control") }}
+            </div>
 
-            <button type="submit">Enviar</button>
+            <div class="form-group">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control") }}
+            </div>
+
+            <div class="form-group">
+                {{ form.num_numbers.label(class="form-label") }}
+                {{ form.num_numbers(class="form-control") }}
+            </div>
+
+            <div class="form-group" id="custom-number-container" style="display: none;">
+                {{ form.custom_number.label(class="form-label") }}
+                {{ form.custom_number(class="form-control") }}
+            </div>
+
+            <div class="form-group">
+                {{ form.bank_account.label(class="form-label") }}
+                {{ form.bank_account(class="form-control") }}
+            </div>
+
+            <div class="form-group">
+                {{ form.reference.label(class="form-label") }}
+                {{ form.reference(class="form-control") }}
+            </div>
+
+            <button type="submit" class="btn btn-primary">Enviar</button>
         </form>
     </div>
 </body>
 <script>
     function toggleCustomNumber() {
-        const select = document.getElementById('num_numbers');
-        const customNumberInput = document.getElementById('custom_number');
-        const customOption = select.querySelector('option[value="custom"]');
-
-        if (customOption.selected) {
-            select.disabled = true;
-            customNumberInput.style.display = 'block';
+        var numNumbers = document.getElementById('num_numbers').value;
+        var customNumberContainer = document.getElementById('custom-number-container');
+        if (numNumbers === 'custom') {
+            customNumberContainer.style.display = 'block';
         } else {
-            select.disabled = false;
-            customNumberInput.style.display = 'none';
+            customNumberContainer.style.display = 'none';
         }
     }
+    document.getElementById('num_numbers').addEventListener('change', toggleCustomNumber);
 </script>
 </html>
