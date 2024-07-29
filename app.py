@@ -133,7 +133,7 @@ def index():
 
                 mail.send(msg)
 
-                flash('Tu solicitud ha sido enviada exitosamente. Tus números generados son: ' + ', '.join(map(str, numbers)), 'success')
+                flash('Tu solicitud ha sido enviada exitosamente. Tus números generados son: \n' + ', '.join(map(str, numbers)), 'success')
 
         except Exception as e:
             print(f'Error: {e}')
@@ -145,9 +145,9 @@ def index():
 
 
 # Ruta para ver los números de la rifa con paginación
-@app.route('/ver_numeros')
-@app.route('/ver_numeros/<int:page>')
-def ver_numeros(page=1):
+@app.route('/list_numbers')
+@app.route('/list_numbers/<int:page>')
+def list_numbers(page=1):
     per_page = 10
     numeros_paginados = RaffleNumber.query.paginate(page=page, per_page=per_page, error_out=False)
     print(numeros_paginados)
@@ -186,17 +186,12 @@ def toggle_raffle(raffle_id):
     return redirect(url_for('list_raffles'))
 
 
-
-# Listar todos los sorteos
 @app.route('/list_raffles', methods=['GET'])
 @app.route('/list_raffles/<int:page>', methods=['GET'])
 def list_raffles(page=1):
     per_page = 10
     raffles = Raffle.query.paginate(page=page, per_page=per_page, error_out=False)
     return render_template('list_raffles.html', raffles=raffles)
-
-
-
 
 
 if __name__ == '__main__':
