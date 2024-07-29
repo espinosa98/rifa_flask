@@ -1,133 +1,94 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <title>Generador de Números de Rifa</title>
+{% extends 'base.html' %}
+
+{% block title %}Generar Numeros{% endblock %}
+
+{% block styles %}
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            width: 100%;
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #0056b3;
+        .form-group {
+            margin-bottom: 1rem;
         }
     </style>
-</head>
-<body>
-    <div class="container mt-5">
-        <h1>Generador de Números de Rifa</h1>
-        <!-- Mostrar mensajes flash -->
-        {% with messages = get_flashed_messages(with_categories=True) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <script>
-                        Swal.fire({
-                            title: 'Mensaje',
-                            text: '{{ message }}',
-                            icon: '{{ category }}',
-                            confirmButtonText: 'Aceptar'
-                        });
-                    </script>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+{% endblock %}
+
+{% block form %}
+        {% if raffle %}
+            <h4><strong>Sorteo Activo:</strong> {{ raffle.name }} (Fecha de Inicio: {{ raffle.start_date }})</h4>
+        {% else %}
+            <h4>No hay sorteos activos en este momento.</h4>
+        {% endif %}
         <form method="POST">
             {{ form.hidden_tag() }}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.first_name.label(class="form-label") }}
+                        {{ form.first_name(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.last_name.label(class="form-label") }}
+                        {{ form.last_name(class="form-control") }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.address.label(class="form-label") }}
+                        {{ form.address(class="form-control") }}
+                    </div>
 
-            <div class="form-group">
-                {{ form.first_name.label(class="form-label") }}
-                {{ form.first_name(class="form-control") }}
+                    <div class="form-group">
+                        {{ form.reference_number.label(class="form-label") }}
+                        {{ form.reference_number(class="form-control") }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control") }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.num_numbers.label(class="form-label") }}
+                        {{ form.num_numbers(class="form-control") }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.bank_account.label(class="form-label") }}
+                        {{ form.bank_account(class="form-control") }}
+                    </div>
+
+                    <div class="form-group" id="custom-number-container" style="display: none;">
+                        {{ form.custom_number.label(class="form-label") }}
+                        {{ form.custom_number(class="form-control") }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.reference.label(class="form-label") }}
+                        {{ form.reference(class="form-control") }}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </div>
             </div>
-
-            <div class="form-group">
-                {{ form.last_name.label(class="form-label") }}
-                {{ form.last_name(class="form-control") }}
-            </div>
-
-            <div class="form-group">
-                {{ form.address.label(class="form-label") }}
-                {{ form.address(class="form-control") }}
-            </div>
-
-            <div class="form-group">
-                {{ form.reference_number.label(class="form-label") }}
-                {{ form.reference_number(class="form-control") }}
-            </div>
-
-            <div class="form-group">
-                {{ form.email.label(class="form-label") }}
-                {{ form.email(class="form-control") }}
-            </div>
-
-            <div class="form-group">
-                {{ form.num_numbers.label(class="form-label") }}
-                {{ form.num_numbers(class="form-control") }}
-            </div>
-
-            <div class="form-group" id="custom-number-container" style="display: none;">
-                {{ form.custom_number.label(class="form-label") }}
-                {{ form.custom_number(class="form-control") }}
-            </div>
-
-            <div class="form-group">
-                {{ form.bank_account.label(class="form-label") }}
-                {{ form.bank_account(class="form-control") }}
-            </div>
-
-            <div class="form-group">
-                {{ form.reference.label(class="form-label") }}
-                {{ form.reference(class="form-control") }}
-            </div>
-
-            <button type="submit" class="btn btn-primary">Enviar</button>
         </form>
     </div>
-</body>
-<script>
-    function toggleCustomNumber() {
-        var numNumbers = document.getElementById('num_numbers').value;
-        var customNumberContainer = document.getElementById('custom-number-container');
-        if (numNumbers === 'custom') {
-            customNumberContainer.style.display = 'block';
-        } else {
-            customNumberContainer.style.display = 'none';
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function toggleCustomNumber() {
+            var numNumbers = document.getElementById('num_numbers').value;
+            var customNumberContainer = document.getElementById('custom-number-container');
+            if (numNumbers === 'custom') {
+                customNumberContainer.style.display = 'block';
+            } else {
+                customNumberContainer.style.display = 'none';
+            }
         }
-    }
-    document.getElementById('num_numbers').addEventListener('change', toggleCustomNumber);
-</script>
-</html>
+        document.getElementById('num_numbers').addEventListener('change', toggleCustomNumber);
+    </script>
+{% endblock %}

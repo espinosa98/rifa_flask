@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import random
 import os
 from dotenv import load_dotenv
-from forms import RaffleForm
+from forms import RaffleForm, CreateRaffleForm
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
@@ -40,11 +40,19 @@ class Person(db.Model):
     raffle_numbers = db.relationship('RaffleNumber', backref='person', lazy=True)
 
 
-# Definir el modelo para los números de la rifa
 class RaffleNumber(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.Integer, unique=True, nullable=False)
     person_id = db.Column(db.Integer, db.ForeignKey('person.id'), nullable=False)
+    raffle_id = db.Column(db.Integer, db.ForeignKey('raffle.id'), nullable=False)
+
+
+class Raffle(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    start_date = db.Column(db.Date, nullable=False)
+    active = db.Column(db.Boolean, default=True)
+    max_number = db.Column(db.Integer, nullable=False)
 
 
 # Crear la base de datos
@@ -55,6 +63,8 @@ with app.app_context():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = RaffleForm()
+    # Obtener la rifa activa y actual
+    raffle = Raffle.query.filter_by(active=True).first()
     if form.validate_on_submit():
         email = form.email.data
         num_numbers = form.num_numbers.data
@@ -68,9 +78,13 @@ def index():
         else:
             num_numbers = int(num_numbers)
 
-        if num_numbers > 100:
+        if not raffle:
+            flash('No hay sorteos activos en este momento.', 'error')
+            return redirect(url_for('index'))
+
+        if num_numbers > raffle.max_number:
             # Maximo de 100 números únicos posibles en este caso
-            flash('No se pueden generar más de 100 números únicos.', 'error')
+            flash(f'No se pueden generar más de {raffle.max_number} números por solicitud.', 'error')
             return redirect(url_for('index'))
 
         first_name = form.first_name.data
@@ -80,12 +94,10 @@ def index():
         bank_account = form.bank_account.data
 
         # Obtener los números disponibles
-        available_numbers = set(range(1, 101)) - {n.number for n in RaffleNumber.query.all()}
+        available_numbers = set(range(1, raffle.max_number + 1))
         print(available_numbers)
         print(num_numbers)
-        if len(available_numbers) == num_numbers:
-            flash('Se han agotado los números disponibles.', 'error')
-        elif len(available_numbers) < num_numbers:
+        if len(available_numbers) <= num_numbers:
             flash(f'Solo quedan {len(available_numbers)} números disponibles.', 'error')
             return redirect(url_for('index'))
 
@@ -109,7 +121,7 @@ def index():
                 numbers = random.sample(available_numbers, num_numbers)
 
                 for number in numbers:
-                    new_number = RaffleNumber(number=number, person_id=person.id)
+                    new_number = RaffleNumber(number=number, person_id=person.id, raffle_id=raffle.id)
                     db.session.add(new_number)
 
                 db.session.commit()
@@ -129,7 +141,7 @@ def index():
 
         return redirect(url_for('index'))
 
-    return render_template('index.html', form=form)
+    return render_template('index.html', form=form, raffle=raffle)
 
 
 # Ruta para ver los números de la rifa con paginación
@@ -138,7 +150,53 @@ def index():
 def ver_numeros(page=1):
     per_page = 10
     numeros_paginados = RaffleNumber.query.paginate(page=page, per_page=per_page, error_out=False)
-    return render_template('ver_numeros.html', numeros_paginados=numeros_paginados)
+    print(numeros_paginados)
+    return render_template('list_numbers.html', numeros_paginados=numeros_paginados)
+
+
+# --------- Administrar Sorteos ------------
+@app.route('/create_raffle', methods=['GET', 'POST'])
+def create_raffle():
+    form = CreateRaffleForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        start_date = form.start_date.data
+        max_number = form.max_number.data
+
+        new_raffle = Raffle(name=name, start_date=start_date, max_number=max_number)
+        db.session.add(new_raffle)
+        db.session.commit()
+
+        flash('Sorteo creado exitosamente.', 'success')
+        return redirect(url_for('create_raffle'))
+    else:
+        print(form.errors)
+
+    return render_template('create_raffle.html', form=form)
+
+
+@app.route('/toggle_raffle/<int:raffle_id>', methods=['POST'])
+def toggle_raffle(raffle_id):
+    raffle = Raffle.query.get_or_404(raffle_id)
+    print(raffle.active)
+    raffle.active = True if not raffle.active else False
+    print(raffle.active)
+    db.session.commit()
+    flash(f'El sorteo {raffle.name} ha sido {"activado" if raffle.active else "desactivado"} exitosamente.', 'success')
+    return redirect(url_for('list_raffles'))
+
+
+
+# Listar todos los sorteos
+@app.route('/list_raffles', methods=['GET'])
+@app.route('/list_raffles/<int:page>', methods=['GET'])
+def list_raffles(page=1):
+    per_page = 10
+    raffles = Raffle.query.paginate(page=page, per_page=per_page, error_out=False)
+    return render_template('list_raffles.html', raffles=raffles)
+
+
+
 
 
 if __name__ == '__main__':

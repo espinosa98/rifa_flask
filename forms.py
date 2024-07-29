@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, EmailField, SelectField, IntegerField, SubmitField
+from wtforms import StringField, EmailField, SelectField, IntegerField, SubmitField, DateField
 from wtforms.validators import DataRequired, Email, Optional
 
 class RaffleForm(FlaskForm):
@@ -12,3 +12,9 @@ class RaffleForm(FlaskForm):
     custom_number = IntegerField('Número Personalizado', validators=[Optional()])  # Hacer el campo opcional
     bank_account = SelectField('Cuenta Bancaria', choices=[('1234567890', 'Banco A - 1234567890'), ('0987654321', 'Banco B - 0987654321'), ('1122334455', 'Banco C - 1122334455')], validators=[DataRequired()])
     reference = StringField('Referencia de Consignación', validators=[DataRequired()])
+
+class CreateRaffleForm(FlaskForm):
+    name = StringField('Nombre del Sorteo', validators=[DataRequired()])
+    start_date = DateField('Fecha de Inicio', format='%Y-%m-%d', validators=[DataRequired()])
+    max_number = IntegerField('Máximo Número a Generar', validators=[DataRequired()])
+    submit = SubmitField('Crear Sorteo')
