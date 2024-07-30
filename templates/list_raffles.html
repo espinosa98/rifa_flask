@@ -1,0 +1,40 @@
+{% extends 'base_list.html' %}
+
+{% block title %}Listar sorteos{% endblock %}
+
+{% block table %}
+        <div class="table-responsive">
+            <table class="table table-bordered datatable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre del Sorteo</th>
+                        <th>Fecha de Inicio</th>
+                        <th>Máximo Número a Generar</th>
+                        <th>Valor por Numero</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for raffle in raffles %}
+                        <tr>
+                            <td>{{ raffle.id }}</td>
+                            <td>{{ raffle.name }}</td>
+                            <td>{{ raffle.start_date }}</td>
+                            <td>{{ raffle.max_number }}</td>
+                            <td>{{ raffle.valor_numero }}</td>
+                            <td>{{ 'Activo' if raffle.active else 'Inactivo' }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('toggle_raffle', raffle_id=raffle.id) }}">
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        {{ 'Desactivar' if raffle.active else 'Activar' }}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+{% endblock %}
