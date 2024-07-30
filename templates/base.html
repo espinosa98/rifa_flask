@@ -4,28 +4,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Poison G</title>
     {% block styles %}
     {% endblock %}
     <style>
-        body {
+         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             color: #333;
         }
+
         .container {
             background: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            background-color: white; /* Cambiar el color del fondo a blanco */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999; /* Asegurar que la capa se muestre por encima de todo */
+            opacity: 1; /* Opacidad inicial, 1 es totalmente visible */
+            transition: opacity 0.5s ease; /* Transición de opacidad durante 0.5 segundos con efecto suave */
+        }
+
+        .overlay-content {
+            color: black; /* Cambiar el color del texto a negro */
+            font-size: 24px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3; /* Color del borde */
+            border-top: 4px solid #3498db; /* Color del borde del spinner */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 0.7s linear infinite; /* Animación de rotación */
+          }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .swal-container {
+            /* Estilo para el contenedor principal */
+        }
+
+        .swal-popup {
+            font-size: 1.5rem; /* Tamaño de la fuente para el contenido de la alerta */
+            border-radius: 10px; /* Bordes redondeados */
+            width: 600px; /* Ancho de la ventana */
+        }
+
+        .swal-title {
+            font-size: 2rem; /* Tamaño de la fuente del título */
+            color: #333; /* Color del título */
+        }
+
+        .swal-content {
+            font-size: 1.2rem; /* Tamaño de la fuente del contenido */
+        }
+
+        .swal-button {
+            padding: 0.75em 1.5em; /* Relleno de los botones */
+            font-size: 1rem; /* Tamaño de la fuente de los botones */
+            border-radius: 5px; /* Bordes redondeados para los botones */
+        }
+
+        .custom-icon {
+            font-size: 3rem; /* Tamaño del icono personalizado */
+            color: #28a745; /* Color del icono personalizado */
         }
     </style>
 </head>
 <body>
+    <div id="overlay">
+        <div class="overlay-content">
+            <div class="spinner"></div>
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">Inicio</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('index') }}">Ver Sorteo</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('list_numbers') }}">Ver Números</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('list_raffles') }}">Listar Sorteos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('create_raffle') }}">Crear Sorteo</a>
+                        </li>
+                        <li class="nav-item ms-auto">
+                            <a class="nav-link" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item ms-auto">
+                            <a class="nav-link" href="{{ url_for('login') }}">Iniciar sesión</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
     <div class="container mt-5">
-        <h2>{% block title %}{% endblock %}</h2>
+        <h3 class="text-center">{% block title %}{% endblock %}</h3>
+        <hr>
         <!-- Mostrar mensajes flash -->
         {% with messages = get_flashed_messages(with_categories=True) %}
             {% if messages %}
@@ -41,11 +145,41 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        {% block form %}
-        {% endblock %}
-        {% block table %}
-        {% endblock %}
+        <div class="row">
+            <div class="col-md-12">
+                {% block form %}
+                {% endblock %}
+                {% block contenido %}
+                {% endblock %}
+            </div>
+        </div>
     </div>
     {% block scripts %}
     {% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.onload = function() {
+          var overlay = document.getElementById('overlay');
+          overlay.style.opacity = '0';
+
+        setTimeout(function() {
+            overlay.style.display = 'none';
+          }, 400); // 500ms para dar tiempo a la transición antes de ocultar la capa
+        };
+
+        // bloquear el botón de enviar formulario después de hacer clic durante 3 segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('form').forEach(function(form) {
+                form.addEventListener('submit', function() {
+                    var submitButton = form.querySelector('button[type="submit"]');
+                    submitButton.disabled = true;
+                    setTimeout(function() {
+                        submitButton.disabled = false;
+                    }, 3000);
+                });
+            });
+        });
+
+    </script>
+
 </body>

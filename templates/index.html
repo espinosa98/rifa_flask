@@ -1,85 +1,90 @@
 {% extends 'base.html' %}
 
-{% block title %}Generar Numeros{% endblock %}
-
 {% block styles %}
     <style>
         .form-group {
             margin-bottom: 1rem;
+            font-size: 0.9rem;
         }
     </style>
 {% endblock %}
 
 {% block form %}
         {% if raffle %}
-            <h4><strong>Sorteo Activo:</strong> {{ raffle.name }} (Fecha de Inicio: {{ raffle.start_date }})</h4>
+            {% block title %}<strong>Sorteo Activo:</strong> {{ raffle.name }} (Fecha de Inicio: {{ raffle.start_date }}){% endblock %}
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.first_name.label(class="form-label") }}
+                            {{ form.first_name(class="form-control") }}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.address.label(class="form-label") }}
+                            {{ form.address(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+
+                        <div class="form-group">
+                            {{ form.last_name.label(class="form-label") }}
+                            {{ form.last_name(class="form-control") }}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control") }}
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.num_numbers.label(class="form-label") }}
+                            {{ form.num_numbers(class="form-control") }}
+                        </div>
+
+                        <div id="custom-number-container" style="display: none;">
+                            {{ form.custom_number.label(class="form-label") }}
+                            {{ form.custom_number(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <div class="form-group">
+                            {{ form.bank_account.label(class="form-label") }}
+                            {{ form.bank_account(class="form-control") }}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.reference_number.label(class="form-label") }}
+                            {{ form.reference_number(class="form-control") }}
+                        </div>
+
+
+                    </div>
+
+                    <div id="valor_total_bs" class="col-md-12"></div>
+                    <div id="valor_total_us" class="col-md-12"></div>
+
+                    <div class="col-md-12" style="margin-top: 27px;">
+                        <button type="submit" class="btn btn-primary">Comprar</button>
+                    </div>
+                </div>
+            </form>
         {% else %}
-            <h4>No hay sorteos activos en este momento.</h4>
-        {% endif %}
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        {{ form.first_name.label(class="form-label") }}
-                        {{ form.first_name(class="form-control") }}
-                    </div>
-                    <div class="form-group">
-                        {{ form.last_name.label(class="form-label") }}
-                        {{ form.last_name(class="form-control") }}
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        {{ form.address.label(class="form-label") }}
-                        {{ form.address(class="form-control") }}
-                    </div>
-
-                    <div class="form-group">
-                        {{ form.reference_number.label(class="form-label") }}
-                        {{ form.reference_number(class="form-control") }}
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        {{ form.email.label(class="form-label") }}
-                        {{ form.email(class="form-control") }}
-                    </div>
-
-                    <div class="form-group">
-                        {{ form.num_numbers.label(class="form-label") }}
-                        {{ form.num_numbers(class="form-control") }}
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        {{ form.bank_account.label(class="form-label") }}
-                        {{ form.bank_account(class="form-control") }}
-                    </div>
-
-                    <div class="form-group" id="custom-number-container" style="display: none;">
-                        {{ form.custom_number.label(class="form-label") }}
-                        {{ form.custom_number(class="form-control") }}
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        {{ form.reference.label(class="form-label") }}
-                        {{ form.reference(class="form-control") }}
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Enviar</button>
-                </div>
+            <div class="alert alert-danger" role="alert">
+                <p class="mb-0 justify-content-center text-center">No hay sorteos activos en este momento.</p>
             </div>
-        </form>
-    </div>
+        {% endif %}
 {% endblock %}
 
 {% block scripts %}
     <script>
+        const valor_total_bs = {{ raffle.valor_numero }};
         function toggleCustomNumber() {
             var numNumbers = document.getElementById('num_numbers').value;
             var customNumberContainer = document.getElementById('custom-number-container');
@@ -90,5 +95,24 @@
             }
         }
         document.getElementById('num_numbers').addEventListener('change', toggleCustomNumber);
+
+        function calcularValorTotal() {
+            var numNumbers = document.getElementById('num_numbers').value;
+            var customNumber = document.getElementById('custom_number').value;
+            console.log(customNumber);
+            var valorTotal = 0;
+            if (numNumbers === 'custom') {
+                valorTotal = customNumber * valor_total_bs;
+                valorDolares = customNumber * valor_total_bs;
+            } else {
+                valorTotal = numNumbers * 1000;
+                valorDolares = numNumbers * 1.5;
+            }
+            document.getElementById('valor_total_bs').innerHTML = '<strong>Valor Total Bs$:</strong> $' + valorTotal.toLocaleString();
+            document.getElementById('valor_total_us').innerHTML = '<strong>Valor Total Us$:</strong> $' + valorDolares.toLocaleString();
+        }
+
+        document.getElementById('num_numbers').addEventListener('change', calcularValorTotal);
+        document.getElementById('custom_number').addEventListener('input', calcularValorTotal);
     </script>
 {% endblock %}

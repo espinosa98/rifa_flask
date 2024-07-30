@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+
+{% block title %}Crear Sorteo{% endblock %}
+
 {% block styles %}
 <style>
 </style>
@@ -6,7 +9,6 @@
 
 
 {% block form %}
-        {% block title %}Crear Sorteo{% endblock %}
         <form method="POST">
             {{ form.hidden_tag() }}
             <div class="form-group">
@@ -20,6 +22,10 @@
             <div class="form-group">
                 {{ form.max_number.label(class="form-label") }}
                 {{ form.max_number(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.valor_numero.label(class="form-label") }}
+                {{ form.valor_numero(class="form-control") }}
             </div>
             <div class="form-group">
                 {{ form.submit(class="btn btn-primary") }}
