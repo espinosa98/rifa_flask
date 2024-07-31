@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
 import random
@@ -8,12 +8,16 @@ from forms import RaffleForm, CreateRaffleForm, RegisterForm, LoginForm
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_bcrypt import Bcrypt
 from sqlalchemy.exc import IntegrityError
+import requests
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 REGISTER_KEY = os.getenv('REGISTER_KEY')
+
+API_KEY = os.getenv('API_KEY')
+API_URL = 'https://api.exchangerate-api.com/v4/latest/USD'
 
 # Configuración de Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -96,7 +100,7 @@ def load_user(user_id):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = RaffleForm()
-    # Obtener la rifa activa y actual
+    # Obtener la rifa activa
     raffle = Raffle.query.filter_by(active=True).first()
     if form.validate_on_submit():
         email = form.email.data
@@ -182,8 +186,6 @@ def index():
 
 
 # --------- Rutas para la administración de números ------------
-
-
 @app.route('/list_numbers')
 @login_required
 def list_numbers():
@@ -202,8 +204,6 @@ def delete_number(raffle_number_id):
 
 
 # --------- Rutas para la administración de sorteos ------------
-
-
 @app.route('/create_raffle', methods=['GET', 'POST'])
 @login_required
 def create_raffle():
@@ -236,25 +236,10 @@ def create_raffle():
 def toggle_raffle(raffle_id):
     # Obtener el sorteo especificado
     raffle = Raffle.query.get_or_404(raffle_id)
-    if raffle.active:
-        flash('El sorteo ya está activo.', 'info')
-        return redirect(url_for('list_raffles'))
-
-    # Desactivar todos los sorteos activos
-    raffles_deactivate = Raffle.query.filter_by(active=True).all()
-    for rafflee in raffles_deactivate:
-        rafflee.active = False
-        db.session.add(rafflee)
-
-    # Activar el sorteo especificado
-    raffle.active = True
+    raffle.active = not raffle.active
     db.session.add(raffle)
     db.session.commit()
-
-    mensaje = f'Sorteo {raffle.name} activado exitosamente.'
-    if raffles_deactivate:
-        mensaje += f' Los siguientes sorteos han sido desactivados: {", ".join([r.name for r in raffles_deactivate])}'
-    flash(mensaje, 'success')
+    flash(f'El sorteo {raffle.name} ha sido {"activado" if raffle.active else "desactivado"} exitosamente.', 'success')
     return redirect(url_for('list_raffles'))
 
 
@@ -314,12 +299,20 @@ def logout():
 
 
 # --------- Pagina de administración ------------
-
-
 @app.route('/admin')
 @login_required
 def admin():
     return render_template('admin.html')
+
+
+# --------- API de conversión de moneda ------------
+@app.route('/conversion_rate')
+def conversion_rate():
+    response = requests.get(API_URL)
+    data = response.json()
+    rate = data['rates']['VES']
+    return jsonify({'exchange_rate': rate})
+
 
 
 if __name__ == '__main__':
