@@ -3,15 +3,41 @@
 {% block styles %}
     <style>
         .form-group {
+            margin-bottom: 0.5rem; /* Reducir el espacio entre los campos */
+            font-size: 1.0rem;
+        }
+        .valor-total {
+            display: flex; /* Usar flexbox para alinear el texto */
+            align-items: center; /* Centrar verticalmente */
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            padding: 0.7rem;
             margin-bottom: 1rem;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #343a40;
+            text-align: center;
+        }
+
+        .valor-total .icon {
+            margin-right: 0.5rem; /* Espacio entre el icono y el texto */
+        }
+
+        #valor_total_bs {
+            color: #28a745;
+        }
+
+        #valor_total_us {
+            color: #007bff;
         }
     </style>
 {% endblock %}
 
+{% block title %}{% if raffle %}<strong>Sorteo Activo:</strong> {{ raffle.name }} (Fecha de Inicio: {{ raffle.start_date }}){% endif %}{% endblock %}
+
 {% block form %}
         {% if raffle %}
-            {% block title %}<strong>Sorteo Activo:</strong> {{ raffle.name }} (Fecha de Inicio: {{ raffle.start_date }}){% endblock %}
             <form method="POST">
                 {{ form.hidden_tag() }}
                 <div class="row">
@@ -67,8 +93,16 @@
 
                     </div>
 
-                    <div id="valor_total_bs" class="col-md-12"></div>
-                    <div id="valor_total_us" class="col-md-12"></div>
+                    <div class="col-md-12">
+                        <div id="valor_total_bs" class="valor-total">
+                            <span class="icon">Precio en Bs:</span> <!-- Aquí puedes usar un icono si lo prefieres -->
+                            <span id="valor_total_bs_value"></span>
+                        </div>
+                        <div id="valor_total_us" class="valor-total">
+                            <span class="icon">Precion en USD$:</span> <!-- Aquí puedes usar un icono si lo prefieres -->
+                            <span id="valor_total_us_value"></span>
+                        </div>
+                    </div>
 
                     <div class="col-md-12" style="margin-top: 27px;">
                         <button type="submit" class="btn btn-primary">Comprar</button>
@@ -85,6 +119,8 @@
 {% block scripts %}
     <script>
         const valor_total_bs = {{ raffle.valor_numero }};
+        var exchangeRate = 0;
+
         function toggleCustomNumber() {
             var numNumbers = document.getElementById('num_numbers').value;
             var customNumberContainer = document.getElementById('custom-number-container');
@@ -93,8 +129,28 @@
             } else {
                 customNumberContainer.style.display = 'none';
             }
+
+            if (numNumbers !== 'custom') {
+                document.getElementById('custom_number').value = '';
+            }
         }
         document.getElementById('num_numbers').addEventListener('change', toggleCustomNumber);
+
+        async function fetchExchangeRate() {
+            try {
+                const response = await fetch('/conversion_rate');
+                const data = await response.json();
+                if (data.exchange_rate) {
+                    exchangeRate = data.exchange_rate;
+                    console.log('Tasa de cambio obtenida:', exchangeRate);
+                } else {
+                    console.error('Error al obtener el tipo de cambio:', data.error);
+                }
+            } catch (error) {
+                console.error('Error al obtener el tipo de cambio:', error);
+            }
+            calcularValorTotal();  // Calcular el valor total después de obtener la tasa de cambio
+        }
 
         function calcularValorTotal() {
             var numNumbers = document.getElementById('num_numbers').value;
@@ -103,16 +159,19 @@
             var valorTotal = 0;
             if (numNumbers === 'custom') {
                 valorTotal = customNumber * valor_total_bs;
-                valorDolares = customNumber * valor_total_bs;
+                valorDolares = valorTotal / exchangeRate;
             } else {
-                valorTotal = numNumbers * 1000;
-                valorDolares = numNumbers * 1.5;
+                valorTotal = numNumbers * valor_total_bs;
+                valorDolares = valorTotal / exchangeRate;
             }
-            document.getElementById('valor_total_bs').innerHTML = '<strong>Valor Total Bs$:</strong> $' + valorTotal.toLocaleString();
-            document.getElementById('valor_total_us').innerHTML = '<strong>Valor Total Us$:</strong> $' + valorDolares.toLocaleString();
+            document.getElementById('valor_total_bs_value').textContent = valorTotal.toFixed(2);
+            document.getElementById('valor_total_us_value').textContent = valorDolares.toFixed(2);
         }
+
+        fetchExchangeRate();
 
         document.getElementById('num_numbers').addEventListener('change', calcularValorTotal);
         document.getElementById('custom_number').addEventListener('input', calcularValorTotal);
+
     </script>
 {% endblock %}

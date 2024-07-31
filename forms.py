@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, EmailField, SelectField, IntegerField, SubmitField, DateField,  PasswordField, ValidationError
-from wtforms.validators import DataRequired, Email, Optional, Length, EqualTo
+from wtforms.validators import DataRequired, Email, Optional, Length, EqualTo, NumberRange
 import re
 
 
@@ -11,7 +11,7 @@ class RaffleForm(FlaskForm):
     reference_number = StringField('Referencia de Consignación', validators=[DataRequired()])
     email = EmailField('Correo Electrónico', validators=[DataRequired(), Email()])
     num_numbers = SelectField('Cantidad de Números', choices=[('', ''), ('5', '5'), ('10', '10'), ('20', '20'), ('custom', 'Otro')], validators=[DataRequired()])
-    custom_number = IntegerField('Número Personalizado', validators=[Optional()])  # Hacer el campo opcional
+    custom_number = IntegerField('Número Personalizado', validators=[Optional(), NumberRange(min=1, message="El número debe ser un entero positivo.")])
     bank_account = SelectField('Cuenta Bancaria', choices=[('1234567890', 'Banco A - 1234567890'), ('0987654321', 'Banco B - 0987654321'), ('1122334455', 'Banco C - 1122334455')], validators=[DataRequired()])
 
 
