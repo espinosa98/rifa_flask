@@ -12,7 +12,7 @@ class RaffleForm(FlaskForm):
     email = EmailField('Correo Electrónico', validators=[DataRequired(), Email()])
     num_numbers = SelectField('Cantidad de Números', choices=[('', ''), ('5', '5'), ('10', '10'), ('20', '20'), ('custom', 'Otro')], validators=[DataRequired()])
     custom_number = IntegerField('Número Personalizado', validators=[Optional(), NumberRange(min=1, message="El número debe ser un entero positivo.")])
-    bank_account = SelectField('Cuenta Bancaria', choices=[('1234567890', 'Banco A - 1234567890'), ('0987654321', 'Banco B - 0987654321'), ('1122334455', 'Banco C - 1122334455')], validators=[DataRequired()])
+    bank_account = SelectField('Cuenta Bancaria', choices=[('04142107454', 'Banco - Banesco No. 04142107454 (CC. 30849535)')])
 
 
 class CreateRaffleForm(FlaskForm):
@@ -43,6 +43,18 @@ class RegisterForm(FlaskForm):
             raise ValidationError('La contraseña debe contener al menos un número.')
         if not re.search("[!@#$%^&*()_+]", password):
             raise ValidationError('La contraseña debe contener al menos un carácter especial (!@#$%^&*()_+).')
+
+
+class EditRaffleForm(FlaskForm):
+    name = StringField('Nombre del Sorteo', validators=[DataRequired(), Length(min=2, max=100)])
+    start_date = DateField('Fecha de Inicio', format='%Y-%m-%d', validators=[DataRequired()])
+    max_number = IntegerField('Máximo Número a Generar', validators=[DataRequired()])
+    valor_numero = IntegerField('Valor por Número', validators=[DataRequired()])
+    submit = SubmitField('Actualizar Sorteo')
+
+
+class DeleteRaffleForm(FlaskForm):
+    submit = SubmitField('Eliminar Sorteo')
 
 
 class LoginForm(FlaskForm):
