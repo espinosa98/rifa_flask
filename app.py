@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import random
 import os
 from dotenv import load_dotenv
-from forms import RaffleForm, CreateRaffleForm, RegisterForm, LoginForm
+from forms import RaffleForm, CreateRaffleForm, RegisterForm, LoginForm, EditRaffleForm, DeleteRaffleForm
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_bcrypt import Bcrypt
 from sqlalchemy.exc import IntegrityError
@@ -182,7 +182,7 @@ def index():
         flash(mensaje[0], mensaje[1])
         return redirect(url_for('index'))
 
-    return render_template('index.html', form=form, raffle=raffle)
+    return render_template('index.html', form=form, raffle=raffle, current_page='index')
 
 
 # --------- Rutas para la administración de números ------------
@@ -190,7 +190,7 @@ def index():
 @login_required
 def list_numbers():
     numeros = RaffleNumber.query.all()
-    return render_template('list_numbers.html', numeros=numeros)
+    return render_template('list_numbers.html', numeros=numeros, current_page='list_numbers')
 
 
 @app.route('/delete_number/<int:raffle_number_id>', methods=['POST'])
@@ -228,7 +228,7 @@ def create_raffle():
         flash(mensaje[0], mensaje[1])
         return redirect(url_for('list_raffles'))
 
-    return render_template('create_raffle.html', form=form)
+    return render_template('create_raffle.html', form=form, current_page='create_raffle')
 
 
 @app.route('/toggle_raffle/<int:raffle_id>', methods=['POST'])
@@ -243,12 +243,40 @@ def toggle_raffle(raffle_id):
     return redirect(url_for('list_raffles'))
 
 
+@app.route('/edit_raffle/<int:raffle_id>', methods=['GET', 'POST'])
+@login_required
+def edit_raffle(raffle_id):
+    raffle = Raffle.query.get_or_404(raffle_id)
+    form = EditRaffleForm(obj=raffle)
+
+    if form.validate_on_submit():
+        raffle.name = form.name.data
+        raffle.start_date = form.start_date.data
+        raffle.max_number = form.max_number.data
+        raffle.valor_numero = form.valor_numero.data
+        db.session.commit()
+        flash('Sorteo actualizado exitosamente.', 'success')
+        return redirect(url_for('list_raffles'))
+
+    return render_template('edit_raffle.html', form=form, raffle=raffle, current_page='edit_raffle')
+
+
+@app.route('/delete_raffle/<int:raffle_id>', methods=['POST'])
+@login_required
+def delete_raffle(raffle_id):
+    raffle = Raffle.query.get_or_404(raffle_id)
+    db.session.delete(raffle)
+    db.session.commit()
+    flash('Sorteo eliminado exitosamente.', 'success')
+    return redirect(url_for('list_raffles'))
+
+
 
 @app.route('/list_raffles', methods=['GET'])
 @login_required
 def list_raffles():
     raffles = Raffle.query.all()
-    return render_template('list_raffles.html', raffles=raffles)
+    return render_template('list_raffles.html', raffles=raffles, current_page='list_raffles')
 
 
 # --------- Rutas para la autenticación ------------

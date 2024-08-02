@@ -2,10 +2,6 @@
 
 {% block styles %}
     <style>
-        .form-group {
-            margin-bottom: 0.5rem; /* Reducir el espacio entre los campos */
-            font-size: 1.0rem;
-        }
         .valor-total {
             display: flex; /* Usar flexbox para alinear el texto */
             align-items: center; /* Centrar verticalmente */
@@ -48,15 +44,16 @@
                         </div>
 
                         <div class="form-group">
-                            {{ form.address.label(class="form-label") }}
-                            {{ form.address(class="form-control") }}
+                            {{ form.last_name.label(class="form-label") }}
+                            {{ form.last_name(class="form-control") }}
                         </div>
+
                     </div>
                     <div class="col-md-6">
 
                         <div class="form-group">
-                            {{ form.last_name.label(class="form-label") }}
-                            {{ form.last_name(class="form-control") }}
+                            {{ form.address.label(class="form-label") }}
+                            {{ form.address(class="form-control") }}
                         </div>
 
                         <div class="form-group">
@@ -118,9 +115,11 @@
 
 {% block scripts %}
     <script>
+        // Variables
         const valor_total_bs = {{ raffle.valor_numero }};
         var exchangeRate = 0;
 
+        // Funciones
         function toggleCustomNumber() {
             var numNumbers = document.getElementById('num_numbers').value;
             var customNumberContainer = document.getElementById('custom-number-container');
@@ -134,7 +133,6 @@
                 document.getElementById('custom_number').value = '';
             }
         }
-        document.getElementById('num_numbers').addEventListener('change', toggleCustomNumber);
 
         async function fetchExchangeRate() {
             try {
@@ -164,12 +162,17 @@
                 valorTotal = numNumbers * valor_total_bs;
                 valorDolares = valorTotal / exchangeRate;
             }
-            document.getElementById('valor_total_bs_value').textContent = valorTotal.toFixed(2);
-            document.getElementById('valor_total_us_value').textContent = valorDolares.toFixed(2);
+
+            valorTotal = new Intl.NumberFormat().format(valorTotal);
+            valorDolares = new Intl.NumberFormat().format(valorDolares);
+            document.getElementById('valor_total_bs_value').textContent = valorTotal;
+            document.getElementById('valor_total_us_value').textContent = valorDolares;
         }
 
         fetchExchangeRate();
 
+        // Eventos
+        document.getElementById('num_numbers').addEventListener('change', toggleCustomNumber);
         document.getElementById('num_numbers').addEventListener('change', calcularValorTotal);
         document.getElementById('custom_number').addEventListener('input', calcularValorTotal);
 

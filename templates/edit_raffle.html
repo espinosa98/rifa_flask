@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Sorteo{% endblock %}
+
+{% block form %}
+    <h2>Editar Sorteo</h2>
+    <form method="POST" action="{{ url_for('edit_raffle', raffle_id=raffle.id) }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.start_date.label(class="form-label") }}
+            {{ form.start_date(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.max_number.label(class="form-label") }}
+            {{ form.max_number(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.valor_numero.label(class="form-label") }}
+            {{ form.valor_numero(class="form-control") }}
+        </div>
+        <button type="submit" class="btn btn-primary">Actualizar Sorteo</button>
+    </form>
+{% endblock %}
