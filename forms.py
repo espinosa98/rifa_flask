@@ -12,7 +12,7 @@ class RaffleForm(FlaskForm):
     email = EmailField('Correo Electrónico', validators=[DataRequired(), Email()])
     num_numbers = SelectField('Cantidad de Números', choices=[('', ''), ('5', '5'), ('10', '10'), ('20', '20'), ('custom', 'Otro')], validators=[DataRequired()])
     custom_number = IntegerField('Número Personalizado', validators=[Optional(), NumberRange(min=1, message="El número debe ser un entero positivo.")])
-    bank_account = SelectField('Cuenta Bancaria', choices=[('04142107454', 'Banco - Banesco No. 04142107454 (CC. 30849535)')])
+    bank_account = SelectField('Cuenta Bancaria', choices=[('', 'seleccionar Banco'), ('04142107454', 'Banesco')], validators=[DataRequired()])
 
 
 class CreateRaffleForm(FlaskForm):

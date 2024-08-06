@@ -68,7 +68,7 @@ class Person(db.Model):
 
 class RaffleNumber(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    number = db.Column(db.Integer, nullable=False)
+    number = db.Column(db.String(10), nullable=False)
     person_id = db.Column(db.Integer, db.ForeignKey('person.id'), nullable=False)
     raffle_id = db.Column(db.Integer, db.ForeignKey('raffle.id'), nullable=False)
 
@@ -131,9 +131,8 @@ def index():
 
         # Obtener los números ya utilizados en la rifa activa
         used_numbers = [number.number for number in RaffleNumber.query.filter_by(raffle_id=raffle.id).all()]
-
-        # Calcular los números disponibles
-        available_numbers = list(set(range(1, raffle.max_number + 1)) - set(used_numbers))
+        available_numbers = [str(num).zfill(len(str(raffle.max_number))) for num in range(1, raffle.max_number + 1) if
+                             str(num).zfill(len(str(raffle.max_number))) not in used_numbers]
 
         if len(available_numbers) == 0:
             flash('No hay números disponibles en este momento.', 'error')
@@ -168,9 +167,21 @@ def index():
                 db.session.commit()
 
                 msg = Message('Tus números de la rifa', recipients=[email])
-                msg.body = (f'Tus números de la rifa son: {", ".join(map(str, numbers))}\n\n'
-                            f'Información de la cuenta bancaria: {bank_account}\n'
-                            f'Referencia de consignación: {reference_number}')
+                msg.html = (f'<html>'
+                            f'<body style="font-family: Arial, sans-serif; color: #333; background-color: #f4f4f9;">'
+                            f'<h2 style="color: #3498db;">¡Hola!</h2>'
+                            f'<p><strong>Tus números de la rifa son:</strong></p>'
+                            f'<p style="font-size: 16px;">{", ".join(map(str, numbers))}</p>'
+                            f'<hr style="border: 1px solid #ddd;">'
+                            f'<p><strong>Información de la cuenta bancaria:</strong></p>'
+                            f'<p style="font-size: 16px;">{bank_account}</p>'
+                            f'<p><strong>Referencia de consignación:</strong></p>'
+                            f'<p style="font-size: 16px;">{reference_number}</p>'
+                            f'<hr style="border: 1px solid #ddd;">'
+                            f'<p>¡Gracias por participar!</p>'
+                            f'<p>El equipo de Poison G</p>'
+                            f'</body>'
+                            f'</html>')
 
                 mail.send(msg)
 
@@ -311,10 +322,10 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
-            flash('Login exitoso!', 'success')
+            flash('Inicio de sesión exitoso!', 'success')
             return redirect(url_for('admin'))
         else:
-            flash('Login fallido. Por favor verifica tu email y contraseña.', 'danger')
+            flash('Inicio de sesión fallido. Por favor verifica tu email y contraseña.', 'danger')
     return render_template('login.html', form=form)
 
 
