@@ -2,6 +2,26 @@
 
 {% block styles %}
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+
+            background-image: url("{{ url_for('static', filename='img/poison_gweb.jpeg') }}"); /* URL de la imagen de fondo */
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+        }
         .valor-total {
             display: flex; /* Usar flexbox para alinear el texto */
             align-items: center; /* Centrar verticalmente */
@@ -30,7 +50,7 @@
     </style>
 {% endblock %}
 
-{% block title %}{% if raffle %}<strong>Sorteo Activo:</strong> {{ raffle.name }} (Fecha de Inicio: {{ raffle.start_date }}){% endif %}{% endblock %}
+{% block title %}{% if raffle %}<strong>{{ raffle.name }}</strong> {% endif %}{% endblock %}
 
 {% block form %}
         {% if raffle %}
@@ -68,19 +88,22 @@
                             {{ form.num_numbers.label(class="form-label") }}
                             {{ form.num_numbers(class="form-control") }}
                         </div>
-
+                    </div>
+                    <div class="col-md-6">
                         <div id="custom-number-container" style="display: none;">
                             {{ form.custom_number.label(class="form-label") }}
                             {{ form.custom_number(class="form-control") }}
                         </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-12">
 
                         <div class="form-group">
                             {{ form.bank_account.label(class="form-label") }}
                             {{ form.bank_account(class="form-control") }}
                         </div>
+
+                        <div id="data-count"></div>
 
                         <div class="form-group">
                             {{ form.reference_number.label(class="form-label") }}
@@ -102,7 +125,7 @@
                     </div>
 
                     <div class="col-md-12" style="margin-top: 27px;">
-                        <button type="submit" class="btn btn-primary">Comprar</button>
+                        <button type="submit" class="btn btn-dark">Comprar</button>
                     </div>
                 </div>
             </form>
@@ -169,12 +192,31 @@
             document.getElementById('valor_total_us_value').textContent = valorDolares;
         }
 
+        function showDataCount() {
+            var bankAccount = document.getElementById('bank_account').value;
+            var dataCount = document.getElementById('data-count');
+            console.log(bankAccount);
+            if (bankAccount === '04142107454') {
+                dataCount.innerHTML = `
+                    <div class="alert alert-info" role="alert">
+                        <p class="mb-0">Datos de cuenta:</p>
+                        <p class="mb-0">Banesco</p>
+                        <p class="mb-0">CC. 30849535</p>
+                        <p class="mb-0">No. 04142107454</p>
+                    </div>
+                `;
+            } else {
+                dataCount.innerHTML = '';
+            }
+        }
+
         fetchExchangeRate();
 
         // Eventos
         document.getElementById('num_numbers').addEventListener('change', toggleCustomNumber);
         document.getElementById('num_numbers').addEventListener('change', calcularValorTotal);
         document.getElementById('custom_number').addEventListener('input', calcularValorTotal);
+        document.getElementById('bank_account').addEventListener('change', showDataCount);
 
     </script>
 {% endblock %}

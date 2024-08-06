@@ -1,8 +1,20 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Poppins', sans-serif;
     background-color: #f4f4f9;
     color: #333;
 }
+
+.main {
+    flex: 1;
+}
+
 .container {
     background: #fff;
     padding: 20px;
@@ -10,7 +22,7 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-
+/* Estilo de carga/loader */
 #overlay {
     position: fixed;
     top: 0;
@@ -25,11 +37,13 @@ body {
     opacity: 1; /* Opacidad inicial, 1 es totalmente visible */
     transition: opacity 0.5s ease; /* Transición de opacidad durante 0.5 segundos con efecto suave */
 }
-.overlay-content {
-    color: black; /* Cambiar el color del texto a negro */
-    font-size: 24px;
-}
 
+.overlay-content {
+    position: relative; /* Para posicionar el icono sobre el spinner */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 .spinner {
     border: 4px solid #f3f3f3; /* Color del borde */
@@ -39,18 +53,25 @@ body {
     height: 50px;
     animation: spin 0.7s linear infinite; /* Animación de rotación */
 }
+
+.overlay-icon {
+    position: absolute; /* Para posicionar sobre el spinner */
+    width: 30px; /* Tamaño del icono */
+    height: 30px; /* Tamaño del icono */
+    border-radius: 50%; /* Hace que la imagen sea circular */
+    object-fit: cover; /* Asegura que la imagen se ajuste bien en el contenedor circular */
+    z-index: 10000; /* Asegurarse de que la imagen esté sobre el spinner */
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-
-.custom-icon {
-    font-size: 3rem; /* Tamaño del icono personalizado */
-    color: #28a745; /* Color del icono personalizado */
-}
+/* Estilo de barra de navegacion */
 .navbar {
-    border-bottom: 2px solid #007bff; /* Línea de borde en la parte inferior */
+     background-color: #000000; /* Color de fondo */
+     opacity: 0.7; /* 80% de opacidad */
 }
 
 .navbar-brand {
@@ -80,12 +101,12 @@ body {
 }
 
 .navbar-nav .nav-item.active .nav-link {
-    background-color: #f8f9fa; /* Cambia el color de fondo cuando el elemento está activo */
-    color: #000; /* Cambia el color del texto cuando el elemento está activo */
+    background-color: #000; /* Cambia el color de fondo cuando el elemento está activo */
+    color: #ffffff; /* Cambia el color del texto cuando el elemento está activo */
     border-radius: 4px; /* Agrega bordes redondeados si lo deseas */
 }
 
-
+/* Estilo de formularios */
 .form-label {
     font-size: 1rem;
     font-weight: bold;
@@ -95,3 +116,27 @@ body {
     border: 1px solid #ced4da; /* Borde del campo de entrada */
     border-radius: 5px; /* Radio de borde */
 }
+
+/* Estilo Footer */
+.footer {
+    text-align: center; /* Alinear el texto al centro */
+    padding: 10px; /* Espaciado interno */
+    margin-top: 20px; /* Espaciado superior */
+    background-color: #000000; /* Color de fondo */
+    opacity: 0.7; /* 80% de opacidad */
+    color: #ffffff; /* Color del texto */
+}
+
+.footer a {
+    color: #ffffff; /* Color de los enlaces */
+    text-decoration: none; /* Quitar subrayado de los enlaces */
+}
+
+.footer a:hover {
+    text-decoration: underline; /* Subrayar enlaces al pasar el ratón */
+}
+
+.footer p {
+    margin: 0; /* Eliminar margen */
+}
+
