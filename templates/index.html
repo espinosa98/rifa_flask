@@ -2,6 +2,26 @@
 
 {% block styles %}
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+
+            background-image: url("{{ url_for('static', filename='img/poison_gweb.jpeg') }}"); /* URL de la imagen de fondo */
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+        }
         .valor-total {
             display: flex; /* Usar flexbox para alinear el texto */
             align-items: center; /* Centrar verticalmente */
@@ -30,7 +50,7 @@
     </style>
 {% endblock %}
 
-{% block title %}{% if raffle %}<strong>Sorteo Activo:</strong> {{ raffle.name }} (Fecha de Inicio: {{ raffle.start_date }}){% endif %}{% endblock %}
+{% block title %}{% if raffle %}<strong>{{ raffle.name }}</strong> {% endif %}{% endblock %}
 
 {% block form %}
         {% if raffle %}
@@ -102,7 +122,7 @@
                     </div>
 
                     <div class="col-md-12" style="margin-top: 27px;">
-                        <button type="submit" class="btn btn-primary">Comprar</button>
+                        <button type="submit" class="btn btn-dark">Comprar</button>
                     </div>
                 </div>
             </form>

@@ -27,7 +27,7 @@
                             <td>{{ 'Activo' if raffle.active else 'Inactivo' }}</td>
                             <td>
                                 <form method="POST" action="{{ url_for('toggle_raffle', raffle_id=raffle.id) }}" class="d-inline-block">
-                                    <button type="submit" class="btn btn-primary btn-sm">
+                                    <button type="submit" class="btn btn-dark btn-sm">
                                         {{ 'Desactivar' if raffle.active else 'Activar' }}
                                     </button>
                                 </form>
