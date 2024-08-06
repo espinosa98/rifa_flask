@@ -9,6 +9,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from flask_bcrypt import Bcrypt
 from sqlalchemy.exc import IntegrityError
 import requests
+from flask_migrate import Migrate
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
@@ -30,7 +31,10 @@ app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
 # Configuración de la base de datos
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///rifa.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
 mail = Mail(app)
 
 
@@ -85,11 +89,6 @@ class Raffle(db.Model):
     active = db.Column(db.Boolean, default=True)
     max_number = db.Column(db.Integer, nullable=False)
     valor_numero = db.Column(db.Integer, nullable=False)
-
-
-# Crear la base de datos
-with app.app_context():
-    db.create_all()
 
 
 @login_manager.user_loader
