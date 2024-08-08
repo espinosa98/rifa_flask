@@ -30,6 +30,9 @@ class RaffleNumber(db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('person.id'), nullable=False)
     raffle_id = db.Column(db.Integer, db.ForeignKey('raffle.id'), nullable=False)
 
+    # Relación con el modelo Raffle
+    raffle = db.relationship('Raffle', backref='raffle_numbers', lazy=True)
+
     #combinacion unica de sorteo y numero
     __table_args__ = (
         db.UniqueConstraint('number', 'raffle_id', name='uix_number_raffle_id'),
@@ -43,3 +46,5 @@ class Raffle(db.Model):
     active = db.Column(db.Boolean, default=True)
     max_number = db.Column(db.Integer, nullable=False)
     valor_numero = db.Column(db.Integer, nullable=False)
+    image_filename = db.Column(db.String(255))  # Campo para almacenar el nombre del archivo de la imagen
+

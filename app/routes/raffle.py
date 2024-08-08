@@ -3,12 +3,15 @@ from flask import Blueprint, render_template, redirect, url_for, flash, jsonify
 from flask_login import login_required
 import random
 import requests
+from werkzeug.utils import secure_filename
+import os
 
 # propios
 from app import db
 from app.models import Raffle, RaffleNumber, Person
 from app.forms import RaffleForm, CreateRaffleForm, EditRaffleForm
 from config import Config
+from app.utils import allowed_file, MAX_CONTENT_LENGTH
 
 
 raffle_bp = Blueprint('raffle', __name__)
@@ -59,31 +62,21 @@ def index():
             return redirect(url_for('raffle.index'))
 
         try:
-            with db.session.begin(subtransactions=True):
-                # Verificar si la persona ya existe en la base de datos sino crearla
-                person = Person.query.filter_by(email=email).first()
-                if person is None:
-                    person = Person(first_name=first_name, last_name=last_name, address=address,
-                                    reference_number=reference_number, email=email)
-                    db.session.add(person)
-                else:
-                    person.first_name = first_name
-                    person.last_name = last_name
-                    person.address = address
-                    person.reference_number = reference_number
+            person = Person(first_name=first_name, last_name=last_name, address=address,
+                            reference_number=reference_number, email=email)
+            db.session.add(person)
+            db.session.commit()
 
-                db.session.commit()
+            # Generar los números de la rifa
+            numbers = random.sample(available_numbers, num_numbers)
 
-                # Generar los números de la rifa
-                numbers = random.sample(available_numbers, num_numbers)
+            for number in numbers:
+                new_number = RaffleNumber(number=number, person_id=person.id, raffle_id=raffle.id)
+                db.session.add(new_number)
 
-                for number in numbers:
-                    new_number = RaffleNumber(number=number, person_id=person.id, raffle_id=raffle.id)
-                    db.session.add(new_number)
+            db.session.commit()
 
-                db.session.commit()
-
-                mensaje = 'Tus números de la rifa han sido enviados a tu correo electrónico regitrado. ¡Buena suerte!', 'success'
+            mensaje = 'Tus números de la rifa han sido enviados a tu correo electrónico regitrado. ¡Buena suerte!', 'success'
 
         except Exception as e:
             db.session.rollback()
@@ -99,6 +92,9 @@ def index():
 @login_required
 def list_raffles():
     raffles = Raffle.query.all()
+    # ver numeros generados cantidad
+    for raffle in raffles:
+        raffle.numbers_count = len(raffle.raffle_numbers)
     return render_template('list_raffles.html', raffles=raffles, current_page='list_raffles')
 
 
@@ -107,13 +103,33 @@ def list_raffles():
 def create_raffle():
     form = CreateRaffleForm()
     if form.validate_on_submit():
-        name = form.name.data
-        start_date = form.start_date.data
-        max_number = form.max_number.data
+        if form.image.data:
+            file = form.image.data
 
-        try:
-            with db.session.begin(subtransactions=True):
-                new_raffle = Raffle(name=name, start_date=start_date, max_number=max_number, valor_numero=form.valor_numero.data)
+            # Validar el tamaño del archivo
+            if len(file.read()) > MAX_CONTENT_LENGTH:
+                flash('El tamaño de la imagen no puede exceder los 2 MB.', 'error')
+                return redirect(url_for('raffle.create_raffle'))
+
+            file.seek(0)
+
+            # Validar la extensión del archivo
+            if not allowed_file(file.filename):
+                flash('Solo se permiten archivos de imagen (png, jpg, jpeg, gif).', 'error')
+                return redirect(url_for('raffle.create_raffle'))
+
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(Config.UPLOAD_FOLDER, filename)
+            file.save(file_path)
+
+            try:
+                new_raffle = Raffle(
+                    name=form.name.data,
+                    start_date=form.start_date.data,
+                    max_number=form.max_number.data,
+                    valor_numero=form.valor_numero.data,
+                    image_filename=filename
+                )
                 raffle = Raffle.query.filter_by(active=True).first()
                 if raffle:
                     mensaje = f'Ya hay un sorteo activo llamado {raffle.name}.', 'info'
@@ -123,11 +139,11 @@ def create_raffle():
                     mensaje = 'Sorteo creado exitosamente.', 'success'
                 db.session.add(new_raffle)
                 db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            mensaje = f'Hubo un problema al procesar tu solicitud. {e}', 'error'
-        flash(mensaje[0], mensaje[1])
-        return redirect(url_for('raffle.list_raffles'))
+            except Exception as e:
+                db.session.rollback()
+                mensaje = f'Hubo un problema al procesar tu solicitud. {e}', 'error'
+            flash(mensaje[0], mensaje[1])
+            return redirect(url_for('raffle.list_raffles'))
 
     return render_template('create_raffle.html', form=form, current_page='create_raffle')
 

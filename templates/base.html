@@ -43,7 +43,7 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="raffleDropdown2">
                                 <li><a class="dropdown-item" href="{{ url_for('number.list_numbers') }}">Listar Numeros</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('number.list_person') }}">Listar Personas</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('number.list_person') }}">Numeros por Persona</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown {{ 'active' if current_page in ['create_raffle', 'list_raffles'] else '' }}">

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, EmailField, SelectField, IntegerField, SubmitField, DateField,  PasswordField, ValidationError
+from wtforms import StringField, EmailField, SelectField, IntegerField, SubmitField, DateField,  PasswordField, ValidationError, FileField
 from wtforms.validators import DataRequired, Email, Optional, Length, EqualTo, NumberRange
 import re
 
@@ -20,6 +20,7 @@ class CreateRaffleForm(FlaskForm):
     start_date = DateField('Fecha de Inicio', format='%Y-%m-%d', validators=[DataRequired()])
     max_number = IntegerField('Máximo Número a Generar', validators=[DataRequired()])
     valor_numero = IntegerField('Valor por Número', validators=[DataRequired()])
+    image = FileField('Imagen')  # Campo para cargar la imagen
     submit = SubmitField('Crear Sorteo')
 
 
