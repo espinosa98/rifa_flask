@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash
 from app import db, bcrypt
 from flask_login import login_user, logout_user, login_required
 from sqlalchemy.exc import IntegrityError
+from flask import send_from_directory
 
 # propios
 from app.forms import RegisterForm, LoginForm
@@ -15,6 +16,7 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
+    errores = []
     if form.validate_on_submit():
         register_key = form.register_key.data
         if register_key != Config.REGISTER_KEY:
@@ -32,6 +34,13 @@ def register():
             flash('El correo electrónico o el nombre de usuario ya están registrados. Por favor, intenta con otros.',
                   'danger')
             return redirect(url_for('auth.login'))
+
+    else:
+        if form.errors:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    errores.append(error)
+            flash(f'Errores en el formulario: {errores[0]}', 'danger')
 
     return render_template('register.html', form=form)
 
@@ -56,3 +65,8 @@ def logout():
     logout_user()
     flash('Has cerrado sesión exitosamente.', 'info')
     return redirect(url_for('raffle.index'))
+
+
+@auth_bp.route('/media/images/<filename>')
+def media_images(filename):
+    return send_from_directory(Config.UPLOAD_FOLDER, filename)

@@ -52,6 +52,14 @@
                 max-width: 80%;
             }
         }
+        .img-content {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: block;
+        }
     </style>
 {% endblock %}
 
@@ -60,6 +68,7 @@
 {% block form %}
         {% if raffle %}
             <form method="POST">
+                <img src="{{ url_for('auth.media_images', filename=raffle.image_filename) }}" class="img-content" alt="{{ raffle.name }}">
                 {{ form.hidden_tag() }}
                 <div class="row">
                     <div class="col-md-6">

@@ -1,6 +1,8 @@
 {% extends 'base_list.html' %}
 
-{% block title %}Listar sorteos{% endblock %}
+{% block title %}
+    Listar Personas
+{% endblock %}
 
 {% block table %}
         <div class="table-responsive">
@@ -12,6 +14,7 @@
                         <th>Apellido</th>
                         <th>Referencia Bancaria</th>
                         <th>Numeros Comprados</th>
+                        <th> Nombre del Sorteo</th>
                         <th>Acción</th>
                     </tr>
                 </thead>
@@ -27,6 +30,9 @@
                                     {{ raffle_number.number }},
                                 {% endfor %}
                             </td>
+                            <th>
+                                {{ person.raffle_numbers[0].raffle.name }}
+                            </th>
                             <td>
                                 {% if not person.confirmed %}
                                     <form method="POST" action="{{ url_for('number.send_numbers',  person_id=person.id) }}" class="d-inline-block">
@@ -34,7 +40,11 @@
                                             Enviar números
                                         </button>
                                     </form>
-                                    <a href="{{ url_for('number.delete_person', person_id=person.id) }}" class="btn btn-danger btn-sm">Eliminar</a>
+                                    <form method="POST" action="{{ url_for('number.delete_person', person_id=person.id) }}" class="d-inline-block">
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            Eliminar
+                                        </button>
+                                    </form>
                                 {% else %}
                                     <span class="badge bg-success">Números enviados</span>
                                 {% endif %}
