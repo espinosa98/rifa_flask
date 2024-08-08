@@ -65,6 +65,7 @@ class Person(db.Model):
     address = db.Column(db.String(200), nullable=False)
     reference_number = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), nullable=False)
+    confirmed = db.Column(db.Boolean, default=False) # Confirmar si la persona ha pagado
 
     # Relación uno a muchos con RaffleNumber
     raffle_numbers = db.relationship('RaffleNumber', backref='person', lazy=True)
@@ -165,25 +166,6 @@ def index():
 
                 db.session.commit()
 
-                msg = Message('Tus números de la rifa', recipients=[email])
-                msg.html = (f'<html>'
-                            f'<body style="font-family: Arial, sans-serif; color: #333; background-color: #f4f4f9;">'
-                            f'<h2 style="color: #3498db;">¡Hola!</h2>'
-                            f'<p><strong>Tus números de la rifa son:</strong></p>'
-                            f'<p style="font-size: 16px;">{", ".join(map(str, numbers))}</p>'
-                            f'<hr style="border: 1px solid #ddd;">'
-                            f'<p><strong>Información de la cuenta bancaria:</strong></p>'
-                            f'<p style="font-size: 16px;">{bank_account}</p>'
-                            f'<p><strong>Referencia de consignación:</strong></p>'
-                            f'<p style="font-size: 16px;">{reference_number}</p>'
-                            f'<hr style="border: 1px solid #ddd;">'
-                            f'<p>¡Gracias por participar!</p>'
-                            f'<p>El equipo de Poison G</p>'
-                            f'</body>'
-                            f'</html>')
-
-                mail.send(msg)
-
                 mensaje = 'Tus números de la rifa han sido enviados a tu correo electrónico regitrado. ¡Buena suerte!', 'success'
 
         except Exception as e:
@@ -211,6 +193,48 @@ def delete_number(raffle_number_id):
     db.session.commit()
     flash('Número eliminado exitosamente.', 'success')
     return redirect(url_for('list_numbers'))
+
+
+@app.route('/list_person')
+@login_required
+def list_person():
+    persons = Person.query.all()
+    return render_template('list_person.html', persons=persons, current_page='list_person')
+
+
+@app.route('/delete_person/<int:person_id>', methods=['POST'])
+@login_required
+def delete_person(person_id):
+    person = Person.query.get_or_404(person_id)
+    db.session.delete(person)
+    db.session.commit()
+    flash('Persona eliminada exitosamente.', 'success')
+    return redirect(url_for('list_person'))
+
+
+@app.route('/send_numbers/<int:person_id>', methods=['POST'])
+@login_required
+def send_numbers(person_id):
+    person = Person.query.get_or_404(person_id)
+    numbers = [number.number for number in person.raffle_numbers]
+    msg = Message('Tus números de la rifa', recipients=[person.email])
+    msg.html = (f'<html>'
+                f'<body style="font-family: Arial, sans-serif; color: #333; background-color: #f4f4f9;">'
+                f'<h2 style="color: #3498db;">¡Hola!</h2>'
+                f'<p><strong>Tus números de la rifa son:</strong></p>'
+                f'<p style="font-size: 16px;">{", ".join(map(str, numbers))}</p>'
+                f'<hr style="border: 1px solid #ddd;">'
+                f'<p>¡Gracias por participar!</p>'
+                f'<p>El equipo de Poison G</p>'
+                f'</body>'
+                f'</html>')
+
+    mail.send(msg)
+    person.confirmed = True
+    db.session.add(person)
+    db.session.commit()
+    flash('Correo enviado exitosamente.', 'success')
+    return redirect(url_for('list_person'))
 
 
 # --------- Rutas para la administración de sorteos ------------

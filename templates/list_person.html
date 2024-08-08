@@ -1,0 +1,47 @@
+{% extends 'base_list.html' %}
+
+{% block title %}Listar sorteos{% endblock %}
+
+{% block table %}
+        <div class="table-responsive">
+            <table class="table table-bordered datatable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Referencia Bancaria</th>
+                        <th>Numeros Comprados</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for person in persons %}
+                        <tr>
+                            <td>{{ person.id }}</td>
+                            <td>{{ person.first_name }}</td>
+                            <td>{{ person.last_name }}</td>
+                            <td>{{ person.reference_number }}</td>
+                            <td>
+                                {% for raffle_number in person.raffle_numbers %}
+                                    {{ raffle_number.number }},
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% if not person.confirmed %}
+                                    <form method="POST" action="{{ url_for('send_numbers',  person_id=person.id) }}" class="d-inline-block">
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            Enviar números
+                                        </button>
+                                    </form>
+                                    <a href="{{ url_for('delete_person', person_id=person.id) }}" class="btn btn-danger btn-sm">Eliminar</a>
+                                {% else %}
+                                    <span class="badge bg-success">Números enviados</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+{% endblock %}
