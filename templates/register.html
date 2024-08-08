@@ -23,14 +23,22 @@
         </div>
         <div class="form-group">
             {{ form.password.label(class="form-label") }}
-            {{ form.password(class="form-control") }}
-            {% for error in form.password.errors %}
-                <small class="form-text text-danger">{{ error }}</small>
-            {% endfor %}
+            <div class="input-group">
+                {{ form.password(class="form-control", id="password") }}
+                <span class="input-group-text">
+                    <i class="bi bi-eye-slash" id="togglePassword" style="cursor: pointer;"></i>
+                </span>
+            </div>
         </div>
+
         <div class="form-group">
             {{ form.confirm_password.label(class="form-label") }}
-            {{ form.confirm_password(class="form-control") }}
+            <div class="input-group">
+                {{ form.confirm_password(class="form-control", id="confirm_password") }}
+                <span class="input-group-text">
+                    <i class="bi bi-eye-slash" id="toggleConfirmPassword" style="cursor: pointer;"></i>
+                </span>
+            </div>
         </div>
          <div class="form-group">
             {{ form.register_key.label(class="form-label") }}
@@ -40,4 +48,29 @@
             {{ form.submit(class="btn btn-dark") }}
         </div>
     </form>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function (e) {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+
+            this.classList.toggle('bi-eye');
+            this.classList.toggle('bi-eye-slash');
+        });
+
+        const toggleConfirmPassword = document.querySelector('#toggleConfirmPassword');
+        const confirmPassword = document.querySelector('#confirm_password');
+
+        toggleConfirmPassword.addEventListener('click', function (e) {
+            const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPassword.setAttribute('type', type);
+            this.classList.toggle('bi-eye');
+            this.classList.toggle('bi-eye-slash');
+        });
+    </script>
 {% endblock %}

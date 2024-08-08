@@ -85,6 +85,12 @@ def index():
         flash(mensaje[0], mensaje[1])
         return redirect(url_for('raffle.index'))
 
+    else:
+        if form.errors:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f'{field}: {error}', 'error')
+
     return render_template('index.html', form=form, raffle=raffle, current_page='index')
 
 
