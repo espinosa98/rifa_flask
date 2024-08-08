@@ -167,10 +167,31 @@ def edit_raffle(raffle_id):
     form = EditRaffleForm(obj=raffle)
 
     if form.validate_on_submit():
+
         raffle.name = form.name.data
         raffle.start_date = form.start_date.data
         raffle.max_number = form.max_number.data
         raffle.valor_numero = form.valor_numero.data
+
+        if form.image.data:
+            file = form.image.data
+
+            # Validar el tamaño del archivo
+            if len(file.read()) > MAX_CONTENT_LENGTH:
+                flash('El tamaño de la imagen no puede exceder los 2 MB.', 'error')
+                return redirect(url_for('raffle.edit_raffle', raffle_id=raffle_id))
+
+            file.seek(0)
+
+            # Validar la extensión del archivo
+            if not allowed_file(file.filename):
+                flash('Solo se permiten archivos de imagen (png, jpg, jpeg, gif).', 'error')
+                return redirect(url_for('raffle.edit_raffle', raffle_id=raffle_id))
+
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(Config.UPLOAD_FOLDER, filename)
+            file.save(file_path)
+            raffle.image_filename = filename
         db.session.commit()
         flash('Sorteo actualizado exitosamente.', 'success')
         return redirect(url_for('raffle.list_raffles'))
