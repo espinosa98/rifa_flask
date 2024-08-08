@@ -51,6 +51,7 @@ class EditRaffleForm(FlaskForm):
     start_date = DateField('Fecha de Inicio', format='%Y-%m-%d', validators=[DataRequired()])
     max_number = IntegerField('Máximo Número a Generar', validators=[DataRequired()])
     valor_numero = IntegerField('Valor por Número', validators=[DataRequired()])
+    image = FileField('Imagen')
     submit = SubmitField('Actualizar Sorteo')
 
 

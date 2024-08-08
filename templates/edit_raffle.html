@@ -4,7 +4,7 @@
 
 {% block form %}
     <h2>Editar Sorteo</h2>
-    <form method="POST" action="{{ url_for('raffle.edit_raffle', raffle_id=raffle.id) }}">
+    <form method="POST" action="{{ url_for('raffle.edit_raffle', raffle_id=raffle.id) }}" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="form-group">
             {{ form.name.label(class="form-label") }}
@@ -21,6 +21,10 @@
         <div class="form-group">
             {{ form.valor_numero.label(class="form-label") }}
             {{ form.valor_numero(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.image.label(class="form-label") }}
+            {{ form.image(class="form-control") }}
         </div>
         <button type="submit" class="btn btn-dark">Actualizar Sorteo</button>
     </form>
