@@ -68,7 +68,9 @@
 {% block form %}
         {% if raffle %}
             <form method="POST">
-                <img src="{{ url_for('auth.media_images', filename=raffle.image_filename) }}" class="img-content" alt="{{ raffle.name }}">
+                {% if raffle.image_filename %}
+                    <img src="{{ url_for('auth.media_images', filename=raffle.image_filename) }}" class="img-content" alt="{{ raffle.name }}">
+                {% endif %}
                 {{ form.hidden_tag() }}
                 <div class="row">
                     <div class="col-md-6">
