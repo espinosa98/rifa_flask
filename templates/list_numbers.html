@@ -32,9 +32,13 @@
                         <td>{{ numero.person.reference_number }}</td>
                         <td>{{ numero.number }}</td>
                         <td>
-                            <form method="POST" action="{{ url_for('number.delete_number', raffle_number_id=numero.id) }}">
-                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                            </form>
+                            {% if not numero.person.confirmed %}
+                                <form method="POST" action="{{ url_for('number.delete_number', raffle_number_id=numero.id) }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                </form>
+                            {% else %}
+                                <button class="btn btn-secondary btn-sm" disabled>Confirmado</button>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
