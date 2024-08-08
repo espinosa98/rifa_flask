@@ -26,12 +26,12 @@
                             <td>{{ raffle.valor_numero }}</td>
                             <td>{{ 'Activo' if raffle.active else 'Inactivo' }}</td>
                             <td>
-                                <form method="POST" action="{{ url_for('toggle_raffle', raffle_id=raffle.id) }}" class="d-inline-block">
+                                <form method="POST" action="{{ url_for('raffle.toggle_raffle', raffle_id=raffle.id) }}" class="d-inline-block">
                                     <button type="submit" class="btn btn-dark btn-sm">
                                         {{ 'Desactivar' if raffle.active else 'Activar' }}
                                     </button>
                                 </form>
-                                <a href="{{ url_for('edit_raffle', raffle_id=raffle.id) }}" class="btn btn-warning btn-sm d-inline-block">Editar</a>
+                                <a href="{{ url_for('raffle.edit_raffle', raffle_id=raffle.id) }}" class="btn btn-warning btn-sm d-inline-block">Editar</a>
                             </td>
                         </tr>
                     {% endfor %}

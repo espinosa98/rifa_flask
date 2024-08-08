@@ -47,6 +47,11 @@
         #valor_total_us {
             color: #007bff;
         }
+        @media (max-width: 768px) {
+            .container {
+                max-width: 80%;
+            }
+        }
     </style>
 {% endblock %}
 
@@ -159,7 +164,7 @@
 
         async function fetchExchangeRate() {
             try {
-                const response = await fetch('/conversion_rate');
+                const response = await fetch('{{ url_for('raffle.conversion_rate') }}');
                 const data = await response.json();
                 if (data.exchange_rate) {
                     exchangeRate = data.exchange_rate;
