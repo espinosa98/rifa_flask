@@ -25,7 +25,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">
+        <a class="navbar-brand" href="{{ url_for('raffle.index') }}">
             <img src="{{ url_for('static', filename='img/logo_poison_g.jpeg') }}" alt="Poison G" width="30" height="30" class="d-inline-block align-top">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,18 +35,24 @@
                 <ul class="navbar-nav me-auto">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item {{ 'active' if current_page == 'index' else '' }}">
-                            <a class="nav-link" href="{{ url_for('index') }}">Ver Sorteo</a>
+                            <a class="nav-link" href="{{ url_for('raffle.index') }}">Ver Sorteo</a>
                         </li>
-                        <li class="nav-item {{ 'active' if current_page == 'list_numbers' else '' }}">
-                            <a class="nav-link" href="{{ url_for('list_numbers') }}">Ver Números</a>
+                        <li class="nav-item dropdown {{ 'active' if current_page in ['list_numbers', 'list_person'] else '' }}">
+                            <a class="nav-link dropdown-toggle" href="#" id="raffleDropdown2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Numeros Generados
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="raffleDropdown2">
+                                <li><a class="dropdown-item" href="{{ url_for('number.list_numbers') }}">Listar Numeros</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('number.list_person') }}">Listar Personas</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item dropdown {{ 'active' if current_page in ['create_raffle', 'list_raffles'] else '' }}">
                             <a class="nav-link dropdown-toggle" href="#" id="raffleDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Sorteo
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="raffleDropdown">
-                                <li><a class="dropdown-item" href="{{ url_for('create_raffle') }}">Crear Sorteo</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('list_raffles') }}">Listar Sorteos</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('raffle.create_raffle') }}">Crear Sorteo</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('raffle.list_raffles') }}">Listar Sorteos</a></li>
                             </ul>
                         </li>
                         <li class="nav-item ms-2 me-2">
@@ -57,11 +63,11 @@
                 <ul class="navbar-nav ms-auto">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                            <a class="nav-link" href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}">Iniciar sesión</a>
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">Iniciar sesión</a>
                         </li>
                     {% endif %}
                 </ul>

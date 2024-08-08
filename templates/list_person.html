@@ -29,12 +29,12 @@
                             </td>
                             <td>
                                 {% if not person.confirmed %}
-                                    <form method="POST" action="{{ url_for('send_numbers',  person_id=person.id) }}" class="d-inline-block">
+                                    <form method="POST" action="{{ url_for('number.send_numbers',  person_id=person.id) }}" class="d-inline-block">
                                         <button type="submit" class="btn btn-primary btn-sm">
                                             Enviar números
                                         </button>
                                     </form>
-                                    <a href="{{ url_for('delete_person', person_id=person.id) }}" class="btn btn-danger btn-sm">Eliminar</a>
+                                    <a href="{{ url_for('number.delete_person', person_id=person.id) }}" class="btn btn-danger btn-sm">Eliminar</a>
                                 {% else %}
                                     <span class="badge bg-success">Números enviados</span>
                                 {% endif %}

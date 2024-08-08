@@ -32,7 +32,7 @@
                         <td>{{ numero.person.reference_number }}</td>
                         <td>{{ numero.number }}</td>
                         <td>
-                            <form method="POST" action="{{ url_for('delete_number', raffle_number_id=numero.id) }}">
+                            <form method="POST" action="{{ url_for('number.delete_number', raffle_number_id=numero.id) }}">
                                 <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                             </form>
                         </td>
