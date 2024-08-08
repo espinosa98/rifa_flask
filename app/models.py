@@ -32,7 +32,6 @@ class RaffleNumber(db.Model):
 
     # Relación con el modelo Raffle
     raffle = db.relationship('Raffle', backref='raffle_numbers', lazy=True)
-    person = db.relationship('Person', backref='raffle_numbers', lazy=True)
 
     #combinacion unica de sorteo y numero
     __table_args__ = (
